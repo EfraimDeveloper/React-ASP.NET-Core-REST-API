@@ -1,75 +1,65 @@
 import { useState, useEffect } from "react";
+import { TextField, Button, Paper, Typography } from "@mui/material";
 
 function ProductForm({ onSave, selectedProduct }) {
-  const [form, setForm] = useState({
-    nome: "",
-    preco: ""
-  });
+  const [nome, setNome] = useState("");
+  const [preco, setPreco] = useState("");
 
-  // sincroniza quando muda o produto selecionado
   useEffect(() => {
     if (selectedProduct) {
-      setForm({
-        nome: selectedProduct.nome || "",
-        preco: selectedProduct.preco || ""
-      });
+      setNome(selectedProduct.nome || "");
+      setPreco(selectedProduct.preco || "");
     } else {
-      setForm({
-        nome: "",
-        preco: ""
-      });
+      setNome("");
+      setPreco("");
     }
   }, [selectedProduct]);
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-
-    setForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  }
 
   function handleSubmit(e) {
     e.preventDefault();
 
     onSave({
-      nome: form.nome,
-      preco: Number(form.preco)
+      nome,
+      preco: Number(preco),
     });
 
-    // limpa form após salvar
-    setForm({
-      nome: "",
-      preco: ""
-    });
+    setNome("");
+    setPreco("");
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>
+    <Paper sx={{ p: 3, mb: 3 }}>
+      <Typography variant="h6" gutterBottom>
         {selectedProduct ? "Editar Produto" : "Novo Produto"}
-      </h2>
+      </Typography>
 
-      <input
-        name="nome"
-        placeholder="Nome"
-        value={form.nome}
-        onChange={handleChange}
-      />
+      <form onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Nome"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          margin="normal"
+        />
 
-      <input
-        name="preco"
-        placeholder="Preço"
-        type="number"
-        value={form.preco}
-        onChange={handleChange}
-      />
+        <TextField
+          fullWidth
+          label="Preço"
+          type="number"
+          value={preco}
+          onChange={(e) => setPreco(e.target.value)}
+          margin="normal"
+        />
 
-      <button type="submit">
-        Guardar
-      </button>
-    </form>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ mt: 2 }}
+        >
+          Guardar
+        </Button>
+      </form>
+    </Paper>
   );
 }
 

@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
-import {getProducts,createProduct,updateProduct,deleteProduct,} from "../api/products";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "../api/products";
+
 import ProductForm from "../components/ProductForm";
+
+import {
+  Container,
+  Typography,
+  Paper,
+  Button,
+  Stack,
+} from "@mui/material";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -16,54 +30,75 @@ function ProductList() {
   }, []);
 
   async function handleSave(product) {
-  if (selectedProduct) {
-    await updateProduct(selectedProduct.id, product);
-  } else {
-    await createProduct(product);
+    if (selectedProduct) {
+      await updateProduct(selectedProduct.id, {
+        ...product,
+        id: selectedProduct.id,
+      });
+    } else {
+      await createProduct(product);
+    }
+
+    setSelectedProduct(null);
+    await load();
   }
-
-  setSelectedProduct(null);
-
-  await load(); // 👈 IMPORTANTE: espera atualizar
-}
 
   async function handleDelete(id) {
     await deleteProduct(id);
-    load();
+    await load();
   }
 
- function handleEdit(product) {
-  setSelectedProduct(null); // força reset primeiro
-
-  setTimeout(() => {
+  function handleEdit(product) {
     setSelectedProduct(product);
-  }, 0);
-}
+  }
+
   return (
-    <div>
-      <h1>Produtos</h1>
+    <Container maxWidth="sm">
+      <Typography variant="h4" sx={{ my: 3 }}>
+        Produtos
+      </Typography>
 
       <ProductForm
         onSave={handleSave}
         selectedProduct={selectedProduct}
       />
 
-      <hr />
+      <Stack spacing={2}>
+        {products.map((p) => (
+          <Paper
+            key={p.id}
+            sx={{
+              p: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span>
+              {p.nome} - {p.preco}€
+            </span>
 
-{products.map(p => (
-  <div key={p.id}>
-    {p.nome} - {p.preco}€
-    
-    <button onClick={() => handleEdit(p)}>
-      Editar
-    </button>
+            <div>
+              <Button
+                onClick={() => handleEdit(p)}
+                sx={{ mr: 1 }}
+                variant="outlined"
+              >
+                Editar
+              </Button>
 
-    <button onClick={() => handleDelete(p.id)}>
-      Apagar
-    </button>
-  </div>
-))}
-    </div>
+              <Button
+                onClick={() => handleDelete(p.id)}
+                color="error"
+                variant="contained"
+              >
+                Apagar
+              </Button>
+            </div>
+          </Paper>
+        ))}
+      </Stack>
+    </Container>
   );
 }
 
